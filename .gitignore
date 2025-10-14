@@ -31,7 +31,7 @@ web-build/
 .vscode/
 .idea/
 *.iml
-.docs/
+docs/
 
 # Environment
 .env
