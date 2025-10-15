@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StarknetProvider } from './src/services/StarknetProvider';
 
@@ -10,8 +11,36 @@ import ExploreScreen from './src/screens/ExploreScreen';
 import ListItemScreen from './src/screens/ListItemScreen';
 import MyRentalsScreen from './src/screens/MyRentalsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import ItemDetailScreen from './src/screens/ItemDetailScreen';
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+// Explore Stack Navigator
+function ExploreStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#000',
+        },
+        headerTintColor: '#fff',
+        headerBackTitleVisible: false,
+      }}
+    >
+      <Stack.Screen
+        name="ExploreMain"
+        component={ExploreScreen}
+        options={{ title: 'Explore' }}
+      />
+      <Stack.Screen
+        name="ItemDetail"
+        component={ItemDetailScreen}
+        options={{ title: 'Item Details' }}
+      />
+    </Stack.Navigator>
+  );
+}
 
 export default function App() {
   return (
@@ -41,9 +70,10 @@ export default function App() {
             />
             <Tab.Screen
               name="Explore"
-              component={ExploreScreen}
+              component={ExploreStack}
               options={{
                 title: 'Explore',
+                headerShown: false,
               }}
             />
             <Tab.Screen

@@ -8,56 +8,18 @@ import {
   TouchableOpacity,
   FlatList,
 } from 'react-native';
-import { useStarknet } from '../services/StarknetProvider';
-
-interface FashionItem {
-  id: string;
-  name: string;
-  brand: string;
-  category: string;
-  dailyPrice: number;
-  image: string;
-  rating: number;
-  carbonSaved: number;
-}
-
-// Mock data for demo
-const FEATURED_ITEMS: FashionItem[] = [
-  {
-    id: '1',
-    name: 'Summer Dress',
-    brand: 'Zara',
-    category: 'Dress',
-    dailyPrice: 8,
-    image: 'https://via.placeholder.com/300x400/FF6B9D/fff?text=Summer+Dress',
-    rating: 4.8,
-    carbonSaved: 15,
-  },
-  {
-    id: '2',
-    name: 'Leather Jacket',
-    brand: 'H&M',
-    category: 'Jacket',
-    dailyPrice: 12,
-    image: 'https://via.placeholder.com/300x400/4ADE80/fff?text=Leather+Jacket',
-    rating: 4.9,
-    carbonSaved: 28,
-  },
-  {
-    id: '3',
-    name: 'Designer Jeans',
-    brand: "Levi's",
-    category: 'Pants',
-    dailyPrice: 6,
-    image: 'https://via.placeholder.com/300x400/3B82F6/fff?text=Designer+Jeans',
-    rating: 4.7,
-    carbonSaved: 12,
-  },
-];
+import { MOCK_ITEMS } from '../services/mockData';
+import { FashionItem } from '../types';
 
 const HomeScreen = () => {
-  const { connected, connect } = useStarknet();
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [isConnected, setIsConnected] = useState(false);
+
+  const handleConnect = async () => {
+    // For demo purposes - wallet integration to be added later
+    console.log('Connect wallet clicked');
+    setIsConnected(true);
+  };
 
   const categories = ['All', 'Dress', 'Jacket', 'Pants', 'Shoes', 'Accessories'];
 
@@ -87,8 +49,8 @@ const HomeScreen = () => {
           Rent designer clothes. Save money. Save the planet.
         </Text>
 
-        {!connected ? (
-          <TouchableOpacity style={styles.connectButton} onPress={connect}>
+        {!isConnected ? (
+          <TouchableOpacity style={styles.connectButton} onPress={handleConnect}>
             <Text style={styles.connectButtonText}>Connect Wallet</Text>
           </TouchableOpacity>
         ) : (
@@ -144,7 +106,7 @@ const HomeScreen = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Featured Items</Text>
         <FlatList
-          data={FEATURED_ITEMS}
+          data={MOCK_ITEMS.slice(0, 3)}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           horizontal
