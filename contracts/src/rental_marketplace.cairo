@@ -1,6 +1,44 @@
+use starknet::ContractAddress;
+
+#[derive(Drop, Serde, starknet::Store, Copy)]
+pub struct RentalListing {
+    pub token_id: u256,
+    pub owner: ContractAddress,
+    pub daily_price: u256,
+    pub security_deposit: u256,
+    pub min_rental_days: u8,
+    pub max_rental_days: u8,
+    pub is_active: bool,
+    pub created_at: u64,
+}
+
+#[derive(Drop, Serde, starknet::Store, Copy)]
+pub struct SwapListing {
+    pub token_id: u256,
+    pub owner: ContractAddress,
+    pub desired_categories: felt252, // comma-separated categories
+    pub desired_brands: felt252, // comma-separated brands
+    pub is_active: bool,
+    pub created_at: u64,
+}
+
+#[derive(Drop, Serde, starknet::Store, Copy)]
+pub struct ActiveRental {
+    pub token_id: u256,
+    pub renter: ContractAddress,
+    pub owner: ContractAddress,
+    pub start_date: u64,
+    pub end_date: u64,
+    pub daily_price: u256,
+    pub security_deposit: u256,
+    pub is_active: bool,
+}
+
 #[starknet::contract]
 mod RentalMarketplace {
+    use super::{RentalListing, SwapListing, ActiveRental};
     use starknet::{ContractAddress, get_caller_address, get_block_timestamp, get_contract_address};
+    use starknet::storage::{Map, StoragePointerReadAccess, StoragePointerWriteAccess, StorageMapReadAccess, StorageMapWriteAccess};
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::security::reentrancyguard::ReentrancyGuardComponent;
 
@@ -22,48 +60,14 @@ mod RentalMarketplace {
         nft_contract: ContractAddress,
         payment_handler: ContractAddress,
         // Listings
-        rental_listings: LegacyMap::<u256, RentalListing>,
-        swap_listings: LegacyMap::<u256, SwapListing>,
-        active_rentals: LegacyMap::<u256, ActiveRental>,
+        rental_listings: Map::<u256, RentalListing>,
+        swap_listings: Map::<u256, SwapListing>,
+        active_rentals: Map::<u256, ActiveRental>,
         // Platform fee (in basis points, e.g., 250 = 2.5%)
         platform_fee_bps: u256,
         // User stats
-        user_rental_count: LegacyMap::<ContractAddress, u32>,
-        user_swap_count: LegacyMap::<ContractAddress, u32>,
-    }
-
-    #[derive(Drop, Serde, starknet::Store)]
-    struct RentalListing {
-        token_id: u256,
-        owner: ContractAddress,
-        daily_price: u256,
-        security_deposit: u256,
-        min_rental_days: u8,
-        max_rental_days: u8,
-        is_active: bool,
-        created_at: u64,
-    }
-
-    #[derive(Drop, Serde, starknet::Store)]
-    struct SwapListing {
-        token_id: u256,
-        owner: ContractAddress,
-        desired_categories: felt252, // comma-separated categories
-        desired_brands: felt252, // comma-separated brands
-        is_active: bool,
-        created_at: u64,
-    }
-
-    #[derive(Drop, Serde, starknet::Store)]
-    struct ActiveRental {
-        token_id: u256,
-        renter: ContractAddress,
-        owner: ContractAddress,
-        start_date: u64,
-        end_date: u64,
-        daily_price: u256,
-        security_deposit: u256,
-        is_active: bool,
+        user_rental_count: Map::<ContractAddress, u32>,
+        user_swap_count: Map::<ContractAddress, u32>,
     }
 
     #[event]
@@ -432,9 +436,9 @@ trait IRentalMarketplace<TContractState> {
     fn propose_swap(ref self: TContractState, my_token_id: u256, their_token_id: u256);
     fn accept_swap(ref self: TContractState, token_id_1: u256, token_id_2: u256);
     fn cancel_listing(ref self: TContractState, token_id: u256, listing_type: u8);
-    fn get_rental_listing(self: @TContractState, token_id: u256) -> RentalMarketplace::RentalListing;
-    fn get_swap_listing(self: @TContractState, token_id: u256) -> RentalMarketplace::SwapListing;
-    fn get_active_rental(self: @TContractState, token_id: u256) -> RentalMarketplace::ActiveRental;
+    fn get_rental_listing(self: @TContractState, token_id: u256) -> crate::rental_marketplace::RentalListing;
+    fn get_swap_listing(self: @TContractState, token_id: u256) -> crate::rental_marketplace::SwapListing;
+    fn get_active_rental(self: @TContractState, token_id: u256) -> crate::rental_marketplace::ActiveRental;
     fn get_user_stats(self: @TContractState, user: ContractAddress) -> (u32, u32);
     fn set_platform_fee(ref self: TContractState, fee_bps: u256);
     fn get_platform_fee(self: @TContractState) -> u256;

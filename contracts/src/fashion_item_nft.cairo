@@ -1,6 +1,37 @@
+use starknet::ContractAddress;
+
+#[derive(Drop, Serde, starknet::Store, Copy)]
+pub struct ItemMetadata {
+    pub name: felt252,
+    pub brand: felt252,
+    pub category: felt252, // dress, shirt, pants, shoes, etc.
+    pub size: felt252,
+    pub color: felt252,
+    pub image_uri: felt252,
+    pub condition: u8, // 1-10 scale
+    pub original_price: u256,
+    pub carbon_footprint_saved: u256, // in grams of CO2
+}
+
+#[derive(Drop, Serde, starknet::Store, Copy)]
+pub struct RentalHistory {
+    pub total_rentals: u32,
+    pub total_days_rented: u64,
+    pub last_rental_timestamp: u64,
+    pub total_revenue: u256,
+}
+
+#[derive(Drop, Serde, starknet::Store, Copy)]
+pub struct Rating {
+    pub total_rating: u64,
+    pub rating_count: u32,
+}
+
 #[starknet::contract]
 mod FashionItemNFT {
+    use super::{ItemMetadata, RentalHistory, Rating};
     use starknet::{ContractAddress, get_caller_address, get_block_timestamp};
+    use starknet::storage::{Map, StoragePointerReadAccess, StoragePointerWriteAccess, StorageMapReadAccess, StorageMapWriteAccess};
     use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::access::ownable::OwnableComponent;
@@ -29,37 +60,10 @@ mod FashionItemNFT {
         ownable: OwnableComponent::Storage,
         // Custom storage
         token_counter: u256,
-        item_metadata: LegacyMap::<u256, ItemMetadata>,
-        rental_history: LegacyMap::<u256, RentalHistory>,
-        item_ratings: LegacyMap::<u256, Rating>,
-        is_listed: LegacyMap::<u256, bool>,
-    }
-
-    #[derive(Drop, Serde, starknet::Store)]
-    struct ItemMetadata {
-        name: felt252,
-        brand: felt252,
-        category: felt252, // dress, shirt, pants, shoes, etc.
-        size: felt252,
-        color: felt252,
-        image_uri: felt252,
-        condition: u8, // 1-10 scale
-        original_price: u256,
-        carbon_footprint_saved: u256, // in grams of CO2
-    }
-
-    #[derive(Drop, Serde, starknet::Store)]
-    struct RentalHistory {
-        total_rentals: u32,
-        total_days_rented: u64,
-        last_rental_timestamp: u64,
-        total_revenue: u256,
-    }
-
-    #[derive(Drop, Serde, starknet::Store)]
-    struct Rating {
-        total_rating: u64,
-        rating_count: u32,
+        item_metadata: Map::<u256, ItemMetadata>,
+        rental_history: Map::<u256, RentalHistory>,
+        item_ratings: Map::<u256, Rating>,
+        is_listed: Map::<u256, bool>,
     }
 
     #[event]
@@ -278,8 +282,8 @@ trait IFashionItemNFT<TContractState> {
         days_rented: u64,
         revenue: u256,
     );
-    fn get_item_metadata(self: @TContractState, token_id: u256) -> FashionItemNFT::ItemMetadata;
-    fn get_rental_history(self: @TContractState, token_id: u256) -> FashionItemNFT::RentalHistory;
+    fn get_item_metadata(self: @TContractState, token_id: u256) -> crate::fashion_item_nft::ItemMetadata;
+    fn get_rental_history(self: @TContractState, token_id: u256) -> crate::fashion_item_nft::RentalHistory;
     fn get_item_rating(self: @TContractState, token_id: u256) -> (u64, u32);
     fn is_item_listed(self: @TContractState, token_id: u256) -> bool;
     fn get_average_rating(self: @TContractState, token_id: u256) -> u64;

@@ -1,3 +1,3 @@
-mod fashion_item_nft;
-mod rental_marketplace;
-mod payment_handler;
+pub mod fashion_item_nft;
+pub mod rental_marketplace;
+pub mod payment_handler;

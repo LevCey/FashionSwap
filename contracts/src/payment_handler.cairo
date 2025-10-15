@@ -1,6 +1,23 @@
+use starknet::ContractAddress;
+
+#[derive(Drop, Serde, starknet::Store, Copy)]
+pub struct EscrowPayment {
+    pub payment_id: u256,
+    pub payer: ContractAddress,
+    pub recipient: ContractAddress,
+    pub amount: u256,
+    pub security_deposit: u256,
+    pub purpose: felt252, // 'rental', 'swap', etc.
+    pub status: u8, // 0=pending, 1=completed, 2=refunded, 3=disputed
+    pub created_at: u64,
+    pub released_at: u64,
+}
+
 #[starknet::contract]
 mod PaymentHandler {
+    use super::EscrowPayment;
     use starknet::{ContractAddress, get_caller_address, get_block_timestamp};
+    use starknet::storage::{Map, StoragePointerReadAccess, StoragePointerWriteAccess, StorageMapReadAccess, StorageMapWriteAccess};
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::security::reentrancyguard::ReentrancyGuardComponent;
 
@@ -23,29 +40,16 @@ mod PaymentHandler {
         // Chipi Pay integration address (placeholder for actual Chipi Pay contract)
         chipi_pay_gateway: ContractAddress,
         // Escrow balances
-        escrow_balances: LegacyMap::<u256, EscrowPayment>,
+        escrow_balances: Map::<u256, EscrowPayment>,
         // Platform treasury
         platform_treasury: ContractAddress,
         // Withdrawal balances
-        withdrawable_balances: LegacyMap::<ContractAddress, u256>,
+        withdrawable_balances: Map::<ContractAddress, u256>,
         // Payment counter
         payment_counter: u256,
         // Ultra-low fee structure
         micro_payment_fee_bps: u256, // Even lower fee for micro-payments
         standard_fee_bps: u256,
-    }
-
-    #[derive(Drop, Serde, starknet::Store)]
-    struct EscrowPayment {
-        payment_id: u256,
-        payer: ContractAddress,
-        recipient: ContractAddress,
-        amount: u256,
-        security_deposit: u256,
-        purpose: felt252, // 'rental', 'swap', etc.
-        status: u8, // 0=pending, 1=completed, 2=refunded, 3=disputed
-        created_at: u64,
-        released_at: u64,
     }
 
     #[event]
@@ -373,7 +377,7 @@ trait IPaymentHandler<TContractState> {
     fn return_deposit(ref self: TContractState, payment_id: u256);
     fn refund_payment(ref self: TContractState, payment_id: u256);
     fn withdraw(ref self: TContractState) -> u256;
-    fn get_escrow_payment(self: @TContractState, payment_id: u256) -> PaymentHandler::EscrowPayment;
+    fn get_escrow_payment(self: @TContractState, payment_id: u256) -> crate::payment_handler::EscrowPayment;
     fn get_withdrawable_balance(self: @TContractState, user: ContractAddress) -> u256;
     fn get_fee_structure(self: @TContractState) -> (u256, u256);
     fn set_chipi_pay_gateway(ref self: TContractState, gateway: ContractAddress);
