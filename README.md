@@ -1,8 +1,22 @@
-# FashionSwap - Sustainable P2P Fashion Platform
+# 🥈 FashionSwap - Sustainable P2P Fashion Platform
 
-**Next-Gen Payments + Mobile-First dApp**
+![Starknet Re{Solve} Hackathon 2nd Place](https://img.shields.io/badge/🥈_Starknet_Re{Solve}_Hackathon-2nd_Place-silver?style=for-the-badge)
+![Starknet](https://img.shields.io/badge/Starknet-Sepolia-blue?logo=ethereum)
+![Cairo](https://img.shields.io/badge/Cairo-2.8.2+-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+> **🥈 2nd Place at [Starknet Re{Solve} Hackathon](https://resolve-starknet.devpost.com/) (Oct 2025)**
 
 FashionSwap is a decentralized fashion rental and swap platform built on Starknet, enabling peer-to-peer fashion sharing with ultra-low fees powered by Chipi Pay integration.
+
+## 🏅 Hackathon Achievement
+
+| Competition | Result |
+|-------------|--------|
+| [Starknet Re{Solve} Hackathon](https://resolve-starknet.devpost.com/) | 🥈 **2nd Place** |
+
+📺 [Demo Video](https://www.youtube.com/watch?v=gxh33SircFg) | 📝 [Devpost](https://devpost.com/software/fashionswap)
+
 
 ## Problem Statement
 
